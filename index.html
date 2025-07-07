@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>GPS Location</title>
+    <style>
+      #map {
+        height: 100vh;
+        width: 100%;
+      }
+    </style>
+    <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-database-compat.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key="></script>
+  </head>
+  <body>
+    <div id="map"></div>
+
+    <script>
+      const firebaseConfig = {
+        apiKey: "",
+        authDomain: "",
+        databaseURL: "",
+        projectId: "",
+      };
+
+      const app = firebase.initializeApp(firebaseConfig);
+      const db = firebase.database();
+
+      let map;
+      let marker;
+
+      function initMap(lat = -21.2269, lng = -44.9901) {
+        const position = { lat: lat, lng: lng };
+        map = new google.maps.Map(document.getElementById("map"), {
+          zoom: 15,
+          center: position,
+        });
+        marker = new google.maps.Marker({
+          position: position,
+          map: map,
+          title: "GPS IoT",
+        });
+      }
+
+      db.ref("/gps").on("value", (snapshot) => {
+        const data = snapshot.val();
+        if (!data) return;
+
+        const lat = parseFloat(data.latitude);
+        const lng = parseFloat(data.longitude);
+
+        if (!map) {
+          initMap(lat, lng);
+        } else {
+          const position = { lat: lat, lng: lng };
+          marker.setPosition(position);
+          map.setCenter(position);
+        }
+      });
+    </script>
+  </body>
+</html>
